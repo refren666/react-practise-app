@@ -1,25 +1,42 @@
-import logo from './logo.svg';
-import './App.css';
+import React, {useEffect, useState} from 'react';
+import {BrowserRouter, Routes, Route} from "react-router-dom";
 
-function App() {
+import About from "./pages/About";
+import Posts from "./pages/Posts";
+import './styles/app.css'
+import Navbar from "./components/Navbar";
+import NotFound from "./pages/NotFound";
+import PostId from "./pages/PostId";
+import ProtectedRoutes from "./routes/ProtectedRoutes";
+import {AuthContext} from "./context";
+
+const App = () => {
+  const [isAuth, setIsAuth] = useState(false);
+
+  useEffect(() => {
+    if (localStorage.getItem('auth')) {
+      setIsAuth(true)
+    }
+  }, [])
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <AuthContext.Provider value={{ isAuth, setIsAuth }}>
+      <BrowserRouter>
+        <Routes>
+          <Route path={'/'} element={<Navbar/>}>
+            <Route index element={<Posts/>}/>
+            <Route path={'/about'} element={<About/>}/>
+            <Route path={'/posts'} element={<Posts/>}/>
+            <Route element={<ProtectedRoutes/>}>
+              <Route path={'/posts/:postId'} element={<PostId/>}/>
+            </Route>
+            {/*<Route path={'*'} element={<Navigate to={'/posts'}/>}/>*/}
+            <Route path={'*'} element={<NotFound/>}/>
+          </Route>
+        </Routes>
+      </BrowserRouter>
+    </AuthContext.Provider>
   );
-}
+};
 
 export default App;
